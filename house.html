@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detailed Jersey Shore House Construction</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #cfefff 0%, #fdfdfd 100%);
+      overflow-x: hidden;
+    }
+    .spacer {
+      height: 160vh;
+    }
+    .layer {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1200px;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+      pointer-events: none;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+    }
+    .visible {
+      opacity: 1 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="spacer"></div>
+
+  <!-- Framing (Base Structure including foundation position) -->
+  <div class="layer" id="framing">
+    <svg viewBox="0 0 1000 1000">
+      <!-- Foundation -->
+      <rect x="100" y="750" width="800" height="40" fill="#bbb" stroke="#888" stroke-width="3" />
+      <rect x="140" y="790" width="80" height="10" fill="#777" />
+      <rect x="780" y="790" width="80" height="10" fill="#777" />
+
+      <!-- Outer Walls Framing -->
+      <g stroke="#c38b4a" stroke-width="6" fill="none">
+        <rect x="100" y="350" width="800" height="400" />
+        <!-- Studs -->
+        <g stroke-width="4">
+          <!-- Front wall verticals -->
+          <line x1="150" y1="350" x2="150" y2="750" />
+          <line x1="200" y1="350" x2="200" y2="750" />
+          <line x1="250" y1="350" x2="250" y2="750" />
+          <line x1="300" y1="350" x2="300" y2="750" />
+          <line x1="350" y1="350" x2="350" y2="750" />
+          <line x1="400" y1="350" x2="400" y2="750" />
+          <line x1="450" y1="350" x2="450" y2="750" />
+          <line x1="500" y1="350" x2="500" y2="750" />
+          <line x1="550" y1="350" x2="550" y2="750" />
+          <line x1="600" y1="350" x2="600" y2="750" />
+          <line x1="650" y1="350" x2="650" y2="750" />
+          <line x1="700" y1="350" x2="700" y2="750" />
+          <line x1="750" y1="350" x2="750" y2="750" />
+          <line x1="800" y1="350" x2="800" y2="750" />
+        </g>
+      </g>
+      <text x="500" y="845" text-anchor="middle" fill="#444" font-size="16">Framing aligned with Foundation and Overall Height</text>
+    </svg>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- Roof -->
+  <div class="layer" id="roof">
+    <svg viewBox="0 0 1000 400">
+      <polygon points="100,350 500,150 900,350" fill="#7b4f2a" stroke="#5a3e24" stroke-width="3" />
+      <line x1="100" y1="350" x2="900" y2="350" stroke="#5a3e24" stroke-width="2" />
+      <text x="500" y="380" text-anchor="middle" fill="#444" font-size="16">Pitched Shingle Roof</text>
+    </svg>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- Siding and Final Trim -->
+  <div class="layer" id="siding">
+    <svg viewBox="0 0 1000 1000">
+      <rect x="100" y="350" width="800" height="400" fill="#f7f1e1" stroke="#dcd3c3" stroke-width="3" />
+      <rect x="180" y="460" width="80" height="100" fill="#ffffff" stroke="#999" stroke-width="2" />
+      <rect x="700" y="460" width="70" height="130" fill="#4b3621" stroke="#222" stroke-width="2" />
+      <!-- Horizontal siding lines -->
+      <g stroke="#e2d8c8" stroke-width="1">
+        <line x1="100" y1="370" x2="900" y2="370" />
+        <line x1="100" y1="390" x2="900" y2="390" />
+        <line x1="100" y1="410" x2="900" y2="410" />
+        <line x1="100" y1="430" x2="900" y2="430" />
+        <line x1="100" y1="450" x2="900" y2="450" />
+        <line x1="100" y1="470" x2="900" y2="470" />
+        <line x1="100" y1="490" x2="900" y2="490" />
+        <line x1="100" y1="510" x2="900" y2="510" />
+        <line x1="100" y1="530" x2="900" y2="530" />
+        <line x1="100" y1="550" x2="900" y2="550" />
+      </g>
+      <text x="500" y="780" text-anchor="middle" fill="#444" font-size="16">Siding with Trim, Doors, and Windows</text>
+    </svg>
+  </div>
+
+  <div class="spacer"></div>
+
+  <script>
+    const layers = ['framing', 'roof', 'siding'];
+    window.addEventListener('scroll', () => {
+      const scrollPos = window.scrollY + window.innerHeight / 2;
+      layers.forEach(id => {
+        const el = document.getElementById(id);
+        const offsetTop = el.nextElementSibling?.offsetTop || el.offsetTop;
+        if (scrollPos > offsetTop - 200) {
+          el.classList.add('visible');
+        } else {
+          el.classList.remove('visible');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
