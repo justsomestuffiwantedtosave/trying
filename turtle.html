@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turtle Swim Game</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      touch-action: none;
+      background: linear-gradient(#99e6ff, #004466);
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <audio id="chompSound" src="https://cdn.pixabay.com/download/audio/2022/03/19/audio_b86365b059.mp3?filename=crunchy-bite-95979.mp3"></audio>
+  <audio id="fartSound" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_65ba1f9d7a.mp3?filename=poop-plop-47600.mp3"></audio>
+  <audio id="swimSound" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_ca9951e27e.mp3?filename=swim-44183.mp3" loop></audio>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chompSound = document.getElementById("chompSound");
+    const fartSound = document.getElementById("fartSound");
+    const swimSound = document.getElementById("swimSound");
+
+    const turtle = {
+      x: canvas.width / 2,
+      y: canvas.height - 100,
+      size: 40,
+      dx: 0,
+      dy: 0,
+      swimAngle: 0
+    };
+
+    const fish = [];
+    for (let i = 0; i < 10; i++) {
+      fish.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
+        size: 50,
+        exploded: false,
+        particles: []
+      });
+    }
+
+    let poopParticles = [];
+    let isTouching = false;
+    let touchX = 0;
+    let touchY = 0;
+
+    function explodeFish(f) {
+      f.exploded = true;
+      f.particles = [];
+      for (let i = 0; i < 20; i++) {
+        f.particles.push({
+          x: f.x,
+          y: f.y,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          color: Math.random() > 0.5 ? "orange" : "darkorange"
+        });
+      }
+      chompSound.currentTime = 0;
+      chompSound.play();
+      setTimeout(() => {
+        poopParticles.push({ x: turtle.x, y: turtle.y + turtle.size * 0.6, vy: 1 });
+        fartSound.currentTime = 0;
+        fartSound.play();
+      }, 500);
+    }
+
+    function drawFish(f) {
+      if (f.exploded) {
+        f.particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.1;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        });
+      } else {
+        ctx.beginPath();
+        ctx.ellipse(f.x, f.y, f.size * 0.6, f.size * 0.3, 0, 0, Math.PI * 2);
+        ctx.fillStyle = "orange";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(f.x - f.size * 0.6, f.y);
+        ctx.lineTo(f.x - f.size * 0.9, f.y - 10);
+        ctx.lineTo(f.x - f.size * 0.9, f.y + 10);
+        ctx.closePath();
+        ctx.fillStyle = "darkorange";
+        ctx.fill();
+      }
+    }
+
+    function drawTurtle() {
+      const speed = Math.sqrt(turtle.dx * turtle.dx + turtle.dy * turtle.dy);
+      turtle.swimAngle += speed * 0.15;
+      const angle = Math.sin(turtle.swimAngle) * 0.4;
+
+      ctx.save();
+      ctx.translate(turtle.x, turtle.y);
+
+      // Rear legs
+      ctx.save();
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.ellipse(-20, 30, 6, 14, Math.PI / 3, 0, Math.PI * 2);
+      ctx.fillStyle = "#8b5e3c";
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.rotate(-angle);
+      ctx.beginPath();
+      ctx.ellipse(20, 30, 6, 14, -Math.PI / 3, 0, Math.PI * 2);
+      ctx.fillStyle = "#8b5e3c";
+      ctx.fill();
+      ctx.restore();
+
+      // Front legs
+      ctx.save();
+      ctx.rotate(-angle);
+      ctx.beginPath();
+      ctx.ellipse(-28, -5, 6, 14, -Math.PI / 4, 0, Math.PI * 2);
+      ctx.fillStyle = "#8b5e3c";
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.ellipse(28, -5, 6, 14, Math.PI / 4, 0, Math.PI * 2);
+      ctx.fillStyle = "#8b5e3c";
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+
+
+      ctx.beginPath();
+      ctx.ellipse(turtle.x, turtle.y, turtle.size, turtle.size * 0.6, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "green";
+      ctx.fill();
+
+      // Neck
+      ctx.beginPath();
+      ctx.ellipse(turtle.x, turtle.y - turtle.size * 0.65, 6, 18, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "#996600";
+      ctx.fill();
+
+      // Head
+      ctx.beginPath();
+      ctx.arc(turtle.x, turtle.y - turtle.size * 0.9, 10, 0, Math.PI * 2);
+      ctx.fillStyle = "#996600";
+      ctx.fill();
+
+      // Eyes
+      ctx.beginPath();
+      ctx.arc(turtle.x - 4, turtle.y - turtle.size * 0.95, 2.5, 0, Math.PI * 2);
+      ctx.arc(turtle.x + 4, turtle.y - turtle.size * 0.95, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(turtle.x - 4, turtle.y - turtle.size * 0.95, 1.2, 0, Math.PI * 2);
+      ctx.arc(turtle.x + 4, turtle.y - turtle.size * 0.95, 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = "black";
+      ctx.fill();
+    }
+
+    function update() {
+      // Continuously generate new fish
+      if (fish.length < 10) {
+        fish.push({
+          x: Math.random() * canvas.width,
+          y: -50,
+          size: 50,
+          exploded: false,
+          particles: []
+        });
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const speed = Math.sqrt(turtle.dx * turtle.dx + turtle.dy * turtle.dy);
+      swimSound.playbackRate = Math.min(Math.max(speed / 5, 1), 2);
+      swimSound.volume = 0.08;
+      if (speed > 1 && swimSound.paused) {
+        swimSound.play();
+      } else if (speed < 0.5 && !swimSound.paused) {
+        swimSound.pause();
+      }
+
+      if (isTouching) {
+        const diffX = touchX - turtle.x;
+        const diffY = touchY - turtle.y;
+        turtle.dx = diffX * 0.1;
+        turtle.dy = diffY * 0.1;
+      } else {
+        turtle.dx *= 0.9;
+        turtle.dy *= 0.9;
+      }
+      turtle.x += turtle.dx;
+      turtle.y += turtle.dy;
+
+      if (turtle.x < turtle.size) turtle.x = turtle.size;
+      if (turtle.x > canvas.width - turtle.size) turtle.x = canvas.width - turtle.size;
+      if (turtle.y < turtle.size) turtle.y = turtle.size;
+      if (turtle.y > canvas.height - turtle.size) turtle.y = canvas.height - turtle.size;
+
+      fish.forEach(f => {
+        if (!f.exploded) f.y += 4;
+        if (f.y > canvas.height) {
+          f.y = -f.size;
+          f.x = Math.random() * canvas.width;
+          f.exploded = false;
+          f.particles = [];
+        }
+        if (!f.exploded) {
+          const dx = turtle.x - f.x;
+          const dy = turtle.y - f.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < turtle.size + f.size / 2) {
+            explodeFish(f);
+          }
+        }
+        drawFish(f);
+      });
+
+      poopParticles.forEach(p => {
+        p.y += p.vy;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "brown";
+        ctx.fill();
+      });
+
+      drawTurtle();
+      requestAnimationFrame(update);
+    }
+
+    window.addEventListener("touchstart", e => {
+      isTouching = true;
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+    });
+
+    window.addEventListener("touchmove", e => {
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+    });
+
+    window.addEventListener("touchend", () => {
+      isTouching = false;
+    });
+
+    update();
+  </script>
+</body>
+</html>
